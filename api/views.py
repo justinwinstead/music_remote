@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework import generics, status
 from .serializers import RoomSerializer, CreateRoomSerializer
 from .models import Room
@@ -34,6 +34,7 @@ class GetRoomView(APIView):
         # return 400 message if code parameter is not found
         return Response({'Bad Request': 'Code parameter not found in request'}, status=status.HTTP_400_BAD_REQUEST)
     
+# class to handle Room join requests
 class JoinRoomView(APIView):
     lookup_url_kwarg = 'code'
 
@@ -91,3 +92,16 @@ class CreateRoomView(APIView):
             return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
         
         return Response({'Bad Request': 'Invalid serializer provided'}, status=status.HTTP_400_BAD_REQUEST)
+    
+# class to check if a user has connected to a room in their current session
+class UserInRoomView(APIView):
+    def get(self, request, format=None):
+        # ensure that user has a session created
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+
+        data = {
+            'code': self.request.session.get('room_code')
+        }
+
+        return JsonResponse(data, status=status.HTTP_200_OK)
