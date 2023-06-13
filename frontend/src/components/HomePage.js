@@ -58,6 +58,13 @@ export default class HomePage extends Component {
         );
     }
 
+    // function to clear the user's room code
+    clearRoomCode = () => {
+        this.setState({
+            roomCode: null,
+        });
+    }
+
     // returns the proper component based on path received from browser
     render() {
         return (
@@ -69,7 +76,11 @@ export default class HomePage extends Component {
                     </Route>
                     <Route path='/join' component={JoinRoomPage} />
                     <Route path='/create' component={CreateRoomPage} />
-                    <Route path="/room/:roomCode" component={Room}/>
+                    <Route 
+                        path="/room/:roomCode" 
+                        render={(props) => {
+                            return <Room {...props} leaveRoomCallback={this.clearRoomCode} />
+                        }} />
                 </Switch>
             </Router>
         );
